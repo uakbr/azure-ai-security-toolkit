@@ -1,0 +1,8 @@
+incident_type: PROMPT_INJECTION
+steps:
+  - name: Block offending user
+    action: block_user
+  - name: Collect chat transcript
+    action: collect_forensics
+  - name: Quarantine model deployment
+    action: quarantine_model

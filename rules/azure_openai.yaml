@@ -1,0 +1,14 @@
+- rule_id: OPENAI-002
+  title: Enforce approved SKUs
+  description: Only approved Azure OpenAI SKUs should be used.
+  severity: MEDIUM
+  resource_types:
+    - azure_openai
+  condition:
+    field: properties.sku.name
+    operator: equals
+    value: S0
+  remediation: Restrict SKU list via Azure Policy.
+  compliance:
+    NIST-AI-RMF: MANAGE-1
+    OWASP-LLM: LLM01

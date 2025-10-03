@@ -1,0 +1,8 @@
+{
+  "openai": {
+    "publicNetworkAccess": "Disabled"
+  },
+  "registry": {
+    "quarantinePolicy": "enabled"
+  }
+}

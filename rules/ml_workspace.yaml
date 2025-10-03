@@ -1,0 +1,14 @@
+- rule_id: ML-002
+  title: Require managed VNet
+  description: Machine Learning workspaces must enable managed VNet isolation.
+  severity: HIGH
+  resource_types:
+    - ml_workspaces
+  condition:
+    field: properties.managedVirtualNetwork.isolationMode
+    operator: equals
+    value: AllowOnlyApprovedOutbound
+  remediation: Enable managed virtual network via Azure ML workspace settings.
+  compliance:
+    MITRE-ATLAS: AML.T0043
+    NIST-AI-RMF: MAP-2

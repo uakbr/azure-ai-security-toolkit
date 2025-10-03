@@ -1,0 +1,10 @@
+- id: RAI-001
+  description: Azure OpenAI deployments must disable public network access
+  field: openai.publicNetworkAccess
+  equals: Disabled
+  severity: CRITICAL
+- id: RAI-002
+  description: Model registry must enforce quarantine for unsigned models
+  field: registry.quarantinePolicy
+  equals: enabled
+  severity: HIGH

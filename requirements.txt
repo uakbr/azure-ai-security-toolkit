@@ -1,0 +1,13 @@
+aiohttp
+azure-identity
+azure-mgmt-resourcegraph
+fastapi
+httpx
+uvicorn
+pyyaml
+pandas
+numpy
+plotly
+streamlit
+pytest
+pytest-asyncio

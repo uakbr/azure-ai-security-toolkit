@@ -1,0 +1,8 @@
+incident_type: MODEL_POISONING
+steps:
+  - name: Quarantine compromised model
+    action: quarantine_model
+  - name: Trigger PagerDuty escalation
+    action: block_user
+  - name: Collect training pipeline forensics
+    action: collect_forensics

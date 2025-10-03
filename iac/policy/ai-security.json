@@ -1,0 +1,28 @@
+{
+  "properties": {
+    "displayName": "Enforce Private Access for Azure OpenAI",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "metadata": {
+      "category": "Security"
+    },
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.CognitiveServices/accounts"
+          },
+          {
+            "field": "Microsoft.CognitiveServices/accounts/publicNetworkAccess",
+            "equals": "Enabled"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  }
+}

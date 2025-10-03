@@ -1,0 +1,12 @@
+{
+  "suggestion": "const secret = 'AKIA1234567890TEST';",
+  "blocklist": ["secret", "password"],
+  "statistics": {
+    "copilot_accept_rate": 0.45
+  },
+  "context": {
+    "pull_request": {
+      "title": "Add new feature"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+- rule_id: COG-003
+  title: Enforce private endpoint usage
+  description: Cognitive Services accounts must restrict access to private endpoints only.
+  severity: HIGH
+  resource_types:
+    - cognitive_services
+  condition:
+    field: properties.networkAcls.defaultAction
+    operator: equals
+    value: Deny
+  remediation: Configure network ACLs to deny public traffic by default.
+  compliance:
+    OWASP-LLM: LLM08
+    NIST-AI-RMF: GOVERN-3
