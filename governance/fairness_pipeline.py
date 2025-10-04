@@ -26,12 +26,25 @@ class FairnessPipeline:
         self.protected_attribute = protected_attribute
 
     def evaluate(self, labels: np.ndarray, predictions: np.ndarray, groups: np.ndarray) -> List[FairnessMetric]:
+        if len(labels) == 0 or len(predictions) == 0 or len(groups) == 0:
+            return []
+        if not (len(labels) == len(predictions) == len(groups)):
+            raise ValueError("labels, predictions, and groups must have the same length")
+        
         metrics: List[FairnessMetric] = []
         unique_groups = np.unique(groups)
+        
+        if len(unique_groups) == 0:
+            return []
+        
         acceptance_rates = {}
         for group in unique_groups:
             mask = groups == group
-            acceptance_rates[group] = predictions[mask].mean()
+            count = mask.sum()
+            if count > 0:
+                acceptance_rates[group] = predictions[mask].mean()
+            else:
+                acceptance_rates[group] = 0.0
         
         max_rate = max(acceptance_rates.values())
         if max_rate > 0:
@@ -43,11 +56,17 @@ class FairnessPipeline:
         false_positive_rates: Dict[str, float] = {}
         for group in unique_groups:
             mask = groups == group
-            fp = ((predictions[mask] == 1) & (labels[mask] == 0)).sum()
             negatives = (labels[mask] == 0).sum()
-            false_positive_rates[group] = fp / max(negatives, 1)
-        disparity = max(false_positive_rates.values()) - min(false_positive_rates.values())
-        metrics.append(FairnessMetric("false_positive_rate_gap", 1 - disparity, 0.7))
+            if negatives > 0:
+                fp = ((predictions[mask] == 1) & (labels[mask] == 0)).sum()
+                false_positive_rates[group] = fp / negatives
+            else:
+                false_positive_rates[group] = 0.0
+        
+        if false_positive_rates:
+            disparity = max(false_positive_rates.values()) - min(false_positive_rates.values())
+            metrics.append(FairnessMetric("false_positive_rate_gap", 1 - disparity, 0.7))
+        
         return metrics
 
     def generate_report(self, metrics: List[FairnessMetric], output_path: Path) -> Path:

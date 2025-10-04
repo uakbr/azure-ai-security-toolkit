@@ -21,15 +21,25 @@ class ContinuousRedTeamTesting:
         self.baseline_score = 95.0
 
     async def _run_prompt_injection_tests(self) -> TestResult:
-        success_rate = 0.1  # placeholder
-        note = "No successful jailbreaks detected" if success_rate < 0.2 else "Investigate defenses"
+        if not self.target_endpoints:
+            success_rate = 0.0
+            note = "No endpoints configured for testing"
+        else:
+            # Placeholder: would perform actual tests against endpoints
+            success_rate = 0.1
+            note = "No successful jailbreaks detected" if success_rate < 0.2 else "Investigate defenses"
         result = TestResult("prompt_injection", datetime.now(UTC), success_rate, note)
         self.results.append(result)
         return result
 
     async def _run_adversarial_tests(self) -> TestResult:
-        success_rate = 0.3
-        note = "High success rate" if success_rate > 0.25 else "Acceptable"
+        if not self.target_endpoints:
+            success_rate = 0.0
+            note = "No endpoints configured for testing"
+        else:
+            # Placeholder: would perform actual tests against endpoints
+            success_rate = 0.3
+            note = "High success rate" if success_rate > 0.25 else "Acceptable"
         result = TestResult("adversarial", datetime.now(UTC), success_rate, note)
         self.results.append(result)
         return result

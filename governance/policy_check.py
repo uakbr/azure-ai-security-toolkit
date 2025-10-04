@@ -59,7 +59,7 @@ def main(argv: List[str] | None = None) -> int:
 
     policies = load_policies(Path(args.config))
     context_path = Path(args.context)
-    context = json.loads(context_path.read_text()) if context_path.exists() else {}
+    context = json.loads(context_path.read_text(encoding="utf-8")) if context_path.exists() else {}
 
     results = [evaluate_policy(policy, context) for policy in policies]
     failures = [r for r in results if not r["compliant"]]

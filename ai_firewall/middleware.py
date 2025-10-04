@@ -36,10 +36,6 @@ class RateLimiter:
 
 
 async def log_request(request: Request, metadata: dict[str, str]) -> None:
-    try:
-        body = await request.json()
-        print("[AI-FIREWALL]", request.method, request.url.path, metadata)
-        print("Body preview:", str(body)[:200])
-    except Exception:
-        # If request body is not JSON or already consumed, skip logging
-        print("[AI-FIREWALL]", request.method, request.url.path, metadata)
+    # Don't try to read request body as it may already be consumed
+    # Just log basic request info
+    print("[AI-FIREWALL]", request.method, request.url.path, metadata)

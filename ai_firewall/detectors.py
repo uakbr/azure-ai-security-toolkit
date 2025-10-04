@@ -55,7 +55,9 @@ class PromptInjectionDetector:
         if self._pii_analyzer:
             pii_entities = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: self._pii_analyzer.analyze(text=content, language="en"),
+                self._pii_analyzer.analyze,
+                content,
+                "en",
             )
             if pii_entities:
                 reasons.append("Detected potential PII in request")
