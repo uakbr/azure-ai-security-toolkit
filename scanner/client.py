@@ -32,7 +32,7 @@ class AzureClient:
         self._resource_graph = None
 
     async def _ensure_clients(self) -> None:
-        if isinstance(self._credential, DefaultAzureCredential) and self._resource_graph:
+        if self._credential is not None and self._resource_graph is not None:
             return
 
         if DefaultAzureCredential is object:
@@ -46,8 +46,8 @@ class AzureClient:
     async def close(self) -> None:
         if self._resource_graph:
             await self._resource_graph.close()
-        if self._credential:
-            await self._credential.__aexit__(None, None, None)  # type: ignore[attr-defined]
+        if self._credential and hasattr(self._credential, "close"):
+            await self._credential.close()
 
     async def query(self, query: str) -> AzureQueryResult:
         """Execute an Azure Resource Graph query."""

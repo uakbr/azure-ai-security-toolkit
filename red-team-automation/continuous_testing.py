@@ -1,12 +1,9 @@
 """Automated red team testing framework."""
 from __future__ import annotations
 
-import asyncio
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List
-
-import numpy as np
 
 
 @dataclass
@@ -26,14 +23,14 @@ class ContinuousRedTeamTesting:
     async def _run_prompt_injection_tests(self) -> TestResult:
         success_rate = 0.1  # placeholder
         note = "No successful jailbreaks detected" if success_rate < 0.2 else "Investigate defenses"
-        result = TestResult("prompt_injection", datetime.utcnow(), success_rate, note)
+        result = TestResult("prompt_injection", datetime.now(UTC), success_rate, note)
         self.results.append(result)
         return result
 
     async def _run_adversarial_tests(self) -> TestResult:
         success_rate = 0.3
         note = "High success rate" if success_rate > 0.25 else "Acceptable"
-        result = TestResult("adversarial", datetime.utcnow(), success_rate, note)
+        result = TestResult("adversarial", datetime.now(UTC), success_rate, note)
         self.results.append(result)
         return result
 
@@ -46,15 +43,20 @@ class ContinuousRedTeamTesting:
     def security_score(self) -> float:
         if not self.results:
             return self.baseline_score
-        penalty = sum(result.success_rate * 50 for result in self.results[-5:])
+        # Calculate penalty based on most recent test results
+        recent_results = self.results[-5:]
+        penalty = sum(result.success_rate * 50 for result in recent_results)
         return max(0.0, self.baseline_score - penalty)
 
     def trend(self, days: int = 7) -> Dict[str, float]:
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(UTC) - timedelta(days=days)
         filtered = [r for r in self.results if r.timestamp >= cutoff]
         if not filtered:
             return {"data_points": 0, "average_success": 0.0}
+        
+        total = sum(r.success_rate for r in filtered)
+        average = total / len(filtered)
         return {
             "data_points": len(filtered),
-            "average_success": float(np.mean([r.success_rate for r in filtered])),
+            "average_success": average,
         }

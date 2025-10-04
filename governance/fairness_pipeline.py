@@ -32,8 +32,12 @@ class FairnessPipeline:
         for group in unique_groups:
             mask = groups == group
             acceptance_rates[group] = predictions[mask].mean()
+        
         max_rate = max(acceptance_rates.values())
-        parity = min(rate / max_rate for rate in acceptance_rates.values())
+        if max_rate > 0:
+            parity = min(rate / max_rate for rate in acceptance_rates.values())
+        else:
+            parity = 1.0  # All rates are zero, treat as equal
         metrics.append(FairnessMetric("demographic_parity", parity, 0.8))
 
         false_positive_rates: Dict[str, float] = {}

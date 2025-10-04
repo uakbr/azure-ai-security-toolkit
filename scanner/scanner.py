@@ -17,8 +17,10 @@ class AISecurityScanner:
     def __init__(self, config: ScannerConfig, extra_rules: Iterable[Rule] | None = None) -> None:
         self.config = config
         builtin_rules = load_rules()
-        custom_rule_files = load_rules_from_files(self._resolve_rule_paths()) if config.rulesets else []
-        self.rules: List[Rule] = builtin_rules + list(custom_rule_files)
+        custom_rule_files = []
+        if config.rulesets:
+            custom_rule_files = load_rules_from_files(self._resolve_rule_paths())
+        self.rules: List[Rule] = builtin_rules + custom_rule_files
         if extra_rules:
             self.rules.extend(list(extra_rules))
 

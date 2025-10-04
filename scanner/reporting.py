@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
@@ -20,7 +20,7 @@ class ReportWriter:
 
     def write_json(self, summary: Dict[str, Any], findings: Iterable[Dict[str, Any]]) -> Path:
         payload = {
-            "generated_at": datetime.utcnow().isoformat() + "Z",
+            "generated_at": datetime.now(UTC).isoformat(),
             "config": self.config.as_dict(),
             "summary": summary,
             "findings": list(findings),
@@ -33,7 +33,7 @@ class ReportWriter:
         path = self.output_dir / "scan-report.md"
         lines: List[str] = []
         lines.append(f"# Azure AI Security Scan Report\n")
-        lines.append(f"_Generated: {datetime.utcnow().isoformat()}Z_\n")
+        lines.append(f"_Generated: {datetime.now(UTC).isoformat()}_\n")
         lines.append("## Summary\n")
         for key, value in summary.items():
             lines.append(f"- **{key.replace('_', ' ').title()}**: {value}")
@@ -43,7 +43,8 @@ class ReportWriter:
             lines.append(f"- Severity: {finding['severity']}")
             lines.append(f"- Resource: `{finding['resource_id']}`")
             lines.append(f"- Message: {finding['message']}")
-            if compliance := finding.get("compliance"):
+            compliance = finding.get("compliance")
+            if compliance:
                 lines.append("- Compliance Mapping:")
                 for framework, control in compliance.items():
                     lines.append(f"  - {framework}: {control}")

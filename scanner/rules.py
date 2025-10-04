@@ -38,9 +38,9 @@ def _is_public_network_enabled(resource: Resource) -> Optional[Dict[str, Any]]:
 
 def _has_soft_delete_disabled(resource: Resource) -> Optional[Dict[str, Any]]:
     props = resource.get("properties", {})
-    if props and not props.get("disableSoftDelete", False):
-        return None
-    return {"message": "Soft delete is disabled; enable to prevent accidental loss."}
+    if props and props.get("disableSoftDelete", False):
+        return {"message": "Soft delete is disabled; enable to prevent accidental loss."}
+    return None
 
 
 def _missing_customer_managed_key(resource: Resource) -> Optional[Dict[str, Any]]:
@@ -116,10 +116,16 @@ def _evaluate_condition(resource: Resource, condition: Dict[str, Any]) -> bool:
             break
 
     if operator == "equals":
+        if current is None or expected is None:
+            return current is expected
         return str(current).lower() == str(expected).lower()
     if operator == "not_equals":
+        if current is None or expected is None:
+            return current is not expected
         return str(current).lower() != str(expected).lower()
     if operator == "in":
+        if current is None or expected is None:
+            return False
         return current in expected  # type: ignore[operator]
     if operator == "exists":
         return current is not None

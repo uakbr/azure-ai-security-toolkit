@@ -35,9 +35,12 @@ class PromptInjectionDetector:
     """Composite detector for common prompt injection & jailbreak patterns."""
 
     def __init__(self) -> None:
-        self._pii_analyzer = AnalyzerEngine() if AnalyzerEngine else None
+        self._pii_analyzer = AnalyzerEngine() if AnalyzerEngine is not None else None
 
     async def detect(self, content: str) -> DetectionResult:
+        if not content:
+            return DetectionResult(False, 0.0, [])
+        
         reasons: List[str] = []
         confidence = 0.0
 
@@ -69,6 +72,9 @@ class DataExfiltrationDetector:
     ]
 
     async def detect(self, content: str) -> DetectionResult:
+        if not content:
+            return DetectionResult(False, 0.0, [])
+        
         matches = [keyword for keyword in self.SENSITIVE_KEYWORDS if keyword in content.lower()]
-        confidence = 0.5 + 0.1 * len(matches) if matches else 0.0
-        return DetectionResult(bool(matches), min(confidence, 0.95), matches)
+        confidence = min(0.5 + 0.1 * len(matches), 0.95) if matches else 0.0
+        return DetectionResult(bool(matches), confidence, matches)

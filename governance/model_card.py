@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Dict, List
 
@@ -38,7 +38,7 @@ class ModelCard:
         lines.append("\n## Evaluation Data\n")
         for key, value in self.evaluation_data.items():
             lines.append(f"- **{key}**: {value}")
-        lines.append(f"\n_Generated: {datetime.utcnow().isoformat()}Z_\n")
+        lines.append(f"\n_Generated: {datetime.now(UTC).isoformat()}_\n")
         return "\n".join(lines)
 
     def save(self, path: Path) -> Path:
@@ -57,7 +57,7 @@ def create_model_card(template: Dict[str, str]) -> ModelCard:
         version=template["version"],
         owners=template["owners"],
         intended_use=template["intended_use"],
-        security_review_date=template.get("security_review_date", datetime.utcnow().date().isoformat()),
+        security_review_date=template.get("security_review_date", datetime.now(UTC).date().isoformat()),
         threat_model_summary=template.get("threat_model_summary", ""),
         mitigations=mitigations,
         evaluation_data=template.get("evaluation_data", {}),

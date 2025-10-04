@@ -1,17 +1,9 @@
 """Scanner configuration models."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Optional
-
-
-def _default_rules() -> List[str]:
-    return [
-        "rules/azure_openai.yaml",
-        "rules/ml_workspace.yaml",
-        "rules/cognitive_services.yaml",
-    ]
 
 
 @dataclass
@@ -20,7 +12,7 @@ class ScannerConfig:
 
     subscription_id: str
     output_dir: Path = Path("reports")
-    rulesets: Iterable[str] = field(default_factory=_default_rules)
+    rulesets: Iterable[str] | None = None
     include_resource_groups: Optional[List[str]] = None
     exclude_resource_groups: Optional[List[str]] = None
     concurrent_requests: int = 10
@@ -34,7 +26,7 @@ class ScannerConfig:
         return {
             "subscription_id": self.subscription_id,
             "output_dir": str(self.output_dir),
-            "rulesets": list(self.rulesets),
+            "rulesets": list(self.rulesets) if self.rulesets else [],
             "include_resource_groups": self.include_resource_groups or [],
             "exclude_resource_groups": self.exclude_resource_groups or [],
             "concurrent_requests": self.concurrent_requests,

@@ -20,16 +20,25 @@ def load_policies(path: Path) -> List[Dict[str, Any]]:
 
 
 def evaluate_policy(policy: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-    field = policy["field"]
+    field = policy.get("field", "")
+    if not field:
+        raise ValueError("Policy missing required 'field' key")
+    if "equals" not in policy:
+        raise ValueError("Policy missing required 'equals' key")
+    
     expected = policy["equals"]
     severity = policy.get("severity", "MEDIUM")
     actual = context
     for segment in field.split('.'):
-        actual = actual.get(segment) if isinstance(actual, dict) else None
+        if isinstance(actual, dict):
+            actual = actual.get(segment)
+        else:
+            actual = None
+            break
     compliant = actual == expected
     return {
-        "policy_id": policy["id"],
-        "description": policy["description"],
+        "policy_id": policy.get("id", "UNKNOWN"),
+        "description": policy.get("description", ""),
         "severity": severity,
         "compliant": compliant,
         "actual": actual,

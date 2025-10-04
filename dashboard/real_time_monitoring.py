@@ -1,7 +1,7 @@
 """Streamlit dashboard for AI security telemetry."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pandas as pd
 import plotly.express as px
@@ -16,7 +16,7 @@ class MockDataSource:
         return 82
 
     def get_events_last_24h(self) -> list[dict[str, object]]:
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         return [
             {"timestamp": now - timedelta(hours=i * 3), "type": "PromptInjection", "severity_score": 70 + i * 5}
             for i in range(6)
@@ -35,7 +35,7 @@ class MockDataSource:
 
     def get_recent_alerts(self, limit: int = 5) -> list[dict[str, str]]:
         return [
-            {"id": f"ALERT-{i}", "severity": "HIGH", "title": f"Prompt Injection Attempt {i}", "timestamp": datetime.utcnow().isoformat(), "type": "PromptInjection", "description": "Blocked malicious request."}
+            {"id": f"ALERT-{i}", "severity": "HIGH", "title": f"Prompt Injection Attempt {i}", "timestamp": datetime.now(UTC).isoformat(), "type": "PromptInjection", "description": "Blocked malicious request."}
             for i in range(limit)
         ]
 
