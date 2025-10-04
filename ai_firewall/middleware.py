@@ -12,8 +12,10 @@ class RateLimiter:
     """Very small in-memory token bucket suitable for demo usage."""
 
     def __init__(self, max_per_minute: int) -> None:
+        if max_per_minute <= 0:
+            raise ValueError("max_per_minute must be greater than 0")
         self.max_per_minute = max_per_minute
-        self._tokens: Dict[str, int] = {}
+        self._tokens: Dict[str, float] = {}
         self._timestamps: Dict[str, float] = {}
         self._lock = asyncio.Lock()
 
