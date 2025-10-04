@@ -16,6 +16,7 @@ JAILBREAK_PATTERNS = [
     for pattern in [
         r"ignore (all|any) previous instructions",
         r"disregard your (policy|policies)",
+        r"disregard (?:all )?(?:rules|policies|instructions)",
         r"system prompt",
         r"now you are (?:allowed|permitted)",
         r"<\/?system>",

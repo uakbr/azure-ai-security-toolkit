@@ -92,7 +92,7 @@ az login
 python scanner/cli.py --subscription-id YOUR_SUBSCRIPTION_ID
 
 # Start AI Firewall proxy
-python ai-firewall/server.py
+python ai_firewall/server.py
 
 # Launch Red Team Lab notebooks
 jupyter notebook red-team-lab/

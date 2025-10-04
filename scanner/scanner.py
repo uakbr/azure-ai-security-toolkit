@@ -1,6 +1,7 @@
 """Core scanning logic."""
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
@@ -57,6 +58,8 @@ class AISecurityScanner:
             if resource.get("resource_type") not in rule.resource_types:
                 continue
             evidence = rule.evaluator(resource)
+            if asyncio.iscoroutine(evidence):
+                evidence = await evidence
             if evidence:
                 resource_findings.append(serialize_finding(rule, resource, evidence))
         return resource_findings

@@ -12,6 +12,9 @@ async def test_full_scan_workflow(tmp_path: Path, monkeypatch) -> None:
     config = ScannerConfig(subscription_id="sub", output_dir=tmp_path)
 
     class DummyClient:
+        def __init__(self, subscription_id):
+            self.subscription_id = subscription_id
+
         async def __aenter__(self):
             return self
 

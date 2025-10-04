@@ -32,7 +32,7 @@ jobs:
       - name: Security linting
         run: |
           pip install bandit safety detect-secrets
-          bandit -r scanner ai-firewall
+          bandit -r scanner ai_firewall
           safety check --full-report
           detect-secrets scan --all-files > .secrets.baseline
       - name: Authenticate with Azure

@@ -23,6 +23,9 @@ async def test_scanner_detects_public_access(monkeypatch, config: ScannerConfig)
     }
 
     class DummyClient:
+        def __init__(self, subscription_id):
+            self.subscription_id = subscription_id
+
         async def __aenter__(self):
             return self
 
@@ -57,6 +60,9 @@ async def test_custom_rule_injection(config: ScannerConfig) -> None:
     )
 
     class DummyClient:
+        def __init__(self, subscription_id):
+            self.subscription_id = subscription_id
+
         async def __aenter__(self):
             return self
 

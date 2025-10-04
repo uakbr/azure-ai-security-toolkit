@@ -24,7 +24,7 @@ This guide walks through setting up the Azure AI Security Toolkit locally and in
    ```
 5. **Start AI Firewall proxy locally**
    ```bash
-   uvicorn ai-firewall.server:app --host 0.0.0.0 --port 8080
+   uvicorn ai_firewall.server:app --host 0.0.0.0 --port 8080
    ```
 
 Refer to the `examples/` directory for reference implementations.
