@@ -36,9 +36,15 @@ class SOAROrchestrator:
         self.active_incidents: Dict[str, AISecurityIncident] = {}
 
     async def handle_event(self, event: Dict[str, Any]) -> AISecurityIncident:
+        severity_str = event.get("severity", "LOW")
+        try:
+            severity = IncidentSeverity[severity_str]
+        except KeyError:
+            severity = IncidentSeverity.LOW
+        
         incident = AISecurityIncident(
             incident_type=event.get("type", "UNKNOWN"),
-            severity=IncidentSeverity[event.get("severity", "LOW")],
+            severity=severity,
             context=event.get("context", {}),
         )
         self.active_incidents[incident.id] = incident
@@ -53,26 +59,39 @@ class SOAROrchestrator:
     async def _execute_playbook(self, incident: AISecurityIncident, playbook: Dict[str, Any]) -> None:
         for step in playbook.get("steps", []):
             handler_name = step.get("action")
+            if not handler_name:
+                continue
             handler = getattr(self, f"_action_{handler_name}", None)
             if not handler:
                 continue
             result = await handler(step, incident)
-            incident.actions_taken.append({"step": step["name"], "result": result})
+            step_name = step.get("name", handler_name)
+            incident.actions_taken.append({"step": step_name, "result": result})
             if result.get("resolved"):
                 incident.resolved = True
                 break
 
     async def _action_block_user(self, step: Dict[str, Any], incident: AISecurityIncident) -> Dict[str, Any]:
         user_id = incident.context.get("user_id")
+        if not user_id:
+            return {"resolved": False, "message": "No user_id in incident context"}
+        if "pagerduty" not in self.integrations:
+            return {"resolved": False, "message": "PagerDuty integration not configured"}
         await self.integrations["pagerduty"].trigger_incident(user_id)
         return {"resolved": False, "message": f"User {user_id} blocked"}
 
     async def _action_collect_forensics(self, step: Dict[str, Any], incident: AISecurityIncident) -> Dict[str, Any]:
+        if "forensics" not in self.integrations:
+            return {"resolved": False, "message": "Forensics integration not configured"}
         collector = self.integrations["forensics"]
         blob_url = await collector.collect(incident.context)
         return {"resolved": False, "forensics_url": blob_url}
 
     async def _action_quarantine_model(self, step: Dict[str, Any], incident: AISecurityIncident) -> Dict[str, Any]:
         model_name = incident.context.get("model_name")
+        if not model_name:
+            return {"resolved": False, "message": "No model_name in incident context"}
+        if "ml" not in self.integrations:
+            return {"resolved": False, "message": "ML integration not configured"}
         await self.integrations["ml"].quarantine_model(model_name)
         return {"resolved": True, "message": f"Model {model_name} quarantined"}

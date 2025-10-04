@@ -41,20 +41,24 @@ async def _proxy_request(
     if "messages" not in payload:
         raise HTTPException(status_code=400, detail="Invalid OpenAI payload")
 
-    content = "\n".join(message.get("content", "") for message in payload["messages"])
+    content = "\n".join(
+        str(message.get("content", "")) for message in payload["messages"] 
+        if message.get("content") is not None
+    )
     detection = await _detector.detect(content)
     if detection.detected:
-        raise HTTPException(status_code=403, detail={"reason": detection.reasons})
+        raise HTTPException(status_code=403, detail={"reason": ", ".join(detection.reasons)})
 
     exfil = await _exfil_detector.detect(content)
     if exfil.detected:
-        raise HTTPException(status_code=403, detail={"reason": exfil.reasons})
+        raise HTTPException(status_code=403, detail={"reason": ", ".join(exfil.reasons)})
 
     api_headers = {
         "api-key": config.api_key,
         "Content-Type": "application/json",
-        "Authorization": authorization or "",
     }
+    if authorization:
+        api_headers["Authorization"] = authorization
 
     endpoint = f"{config.azure_openai_endpoint}/openai/deployments/{config.azure_openai_deployment}/chat/completions?api-version=2023-05-15"
     async with httpx.AsyncClient(timeout=60) as client:
