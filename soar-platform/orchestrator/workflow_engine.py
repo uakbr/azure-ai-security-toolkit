@@ -77,14 +77,25 @@ class SOAROrchestrator:
             return {"resolved": False, "message": "No user_id in incident context"}
         if "pagerduty" not in self.integrations:
             return {"resolved": False, "message": "PagerDuty integration not configured"}
-        await self.integrations["pagerduty"].trigger_incident(user_id)
+        integration = self.integrations["pagerduty"]
+        if not hasattr(integration, "trigger_incident"):
+            return {"resolved": False, "message": "PagerDuty integration missing trigger_incident method"}
+        try:
+            await integration.trigger_incident(user_id)
+        except Exception as exc:
+            return {"resolved": False, "message": f"Failed to block user: {exc}"}
         return {"resolved": False, "message": f"User {user_id} blocked"}
 
     async def _action_collect_forensics(self, step: Dict[str, Any], incident: AISecurityIncident) -> Dict[str, Any]:
         if "forensics" not in self.integrations:
             return {"resolved": False, "message": "Forensics integration not configured"}
         collector = self.integrations["forensics"]
-        blob_url = await collector.collect(incident.context)
+        if not hasattr(collector, "collect"):
+            return {"resolved": False, "message": "Forensics integration missing collect method"}
+        try:
+            blob_url = await collector.collect(incident.context)
+        except Exception as exc:
+            return {"resolved": False, "message": f"Failed to collect forensics: {exc}"}
         return {"resolved": False, "forensics_url": blob_url}
 
     async def _action_quarantine_model(self, step: Dict[str, Any], incident: AISecurityIncident) -> Dict[str, Any]:
@@ -93,5 +104,11 @@ class SOAROrchestrator:
             return {"resolved": False, "message": "No model_name in incident context"}
         if "ml" not in self.integrations:
             return {"resolved": False, "message": "ML integration not configured"}
-        await self.integrations["ml"].quarantine_model(model_name)
+        integration = self.integrations["ml"]
+        if not hasattr(integration, "quarantine_model"):
+            return {"resolved": False, "message": "ML integration missing quarantine_model method"}
+        try:
+            await integration.quarantine_model(model_name)
+        except Exception as exc:
+            return {"resolved": False, "message": f"Failed to quarantine model: {exc}"}
         return {"resolved": True, "message": f"Model {model_name} quarantined"}
