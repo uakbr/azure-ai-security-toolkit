@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any, Dict, List
 
@@ -20,8 +20,8 @@ class AISecurityIncident:
     incident_type: str
     severity: IncidentSeverity
     context: Dict[str, Any]
-    id: str = field(default_factory=lambda: datetime.utcnow().strftime("INC%Y%m%d%H%M%S%f"))
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    id: str = field(default_factory=lambda: datetime.now(UTC).strftime("INC%Y%m%d%H%M%S%f"))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: str = "NEW"
     actions_taken: List[Dict[str, Any]] = field(default_factory=list)
     resolved: bool = False

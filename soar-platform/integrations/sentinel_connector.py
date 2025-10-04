@@ -1,7 +1,7 @@
 """Placeholder Azure Sentinel integration."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict
 
 
@@ -11,4 +11,4 @@ class SentinelConnector:
         self.shared_key = shared_key
 
     async def send_incident(self, incident: Dict[str, str]) -> None:
-        print(f"[Sentinel] {datetime.utcnow().isoformat()} - {incident}")
+        print(f"[Sentinel] {datetime.now(UTC).isoformat()} - {incident}")
