@@ -48,9 +48,18 @@ class ModelCard:
 
 
 def create_model_card(template: Dict[str, str]) -> ModelCard:
+    required_fields = ["model_name", "version", "owners", "intended_use"]
+    for field in required_fields:
+        if field not in template:
+            raise ValueError(f"Missing required field in template: {field}")
+    
+    if not isinstance(template.get("owners"), list):
+        raise ValueError("Field 'owners' must be a list")
+    
     mitigations = [
         RiskMitigation(category=entry["category"], description=entry["description"], status=entry["status"])
         for entry in template.get("mitigations", [])
+        if isinstance(entry, dict) and all(k in entry for k in ["category", "description", "status"])
     ]
     return ModelCard(
         model_name=template["model_name"],

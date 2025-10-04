@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
 from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
@@ -74,11 +73,11 @@ def summarize(findings: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
     findings_list = list(findings)
     totals: Dict[str, int] = {}
     for finding in findings_list:
-        severity = finding["severity"].upper()
+        severity = finding.get("severity", "UNKNOWN").upper()
         totals[severity] = totals.get(severity, 0) + 1
 
     return {
         "total_findings": len(findings_list),
         "by_severity": totals,
-        "unique_resources": len({f["resource_id"] for f in findings_list}),
+        "unique_resources": len({f.get("resource_id") for f in findings_list if f.get("resource_id") is not None}),
     }

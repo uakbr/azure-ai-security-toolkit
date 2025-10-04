@@ -27,6 +27,8 @@ class AzureClient:
     """Wrapper around Azure SDKs with sane defaults and async support."""
 
     def __init__(self, subscription_id: str) -> None:
+        if not subscription_id or not subscription_id.strip():
+            raise ValueError("subscription_id cannot be empty")
         self.subscription_id = subscription_id
         self._credential = None
         self._resource_graph = None
@@ -95,6 +97,9 @@ class AzureClient:
 
 async def gather_with_concurrency(limit: int, *tasks: Any) -> List[Any]:
     """Utility for bounding concurrent async operations."""
+    if limit <= 0:
+        raise ValueError("limit must be greater than 0")
+    
     semaphore = asyncio.Semaphore(limit)
 
     async def sem_task(task: Any) -> Any:

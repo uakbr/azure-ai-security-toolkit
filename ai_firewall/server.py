@@ -37,13 +37,21 @@ async def _proxy_request(
     authorization: str | None = Header(default=None),
 ) -> Dict[str, Any]:
     await log_request(request, {"tenant": "default"})
-    payload = await request.json()
+    
+    try:
+        payload = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Invalid JSON payload") from exc
+    
     if "messages" not in payload:
-        raise HTTPException(status_code=400, detail="Invalid OpenAI payload")
+        raise HTTPException(status_code=400, detail="Invalid OpenAI payload: missing 'messages'")
+    
+    if not isinstance(payload["messages"], list):
+        raise HTTPException(status_code=400, detail="Invalid OpenAI payload: 'messages' must be a list")
 
     content = "\n".join(
         str(message.get("content", "")) for message in payload["messages"] 
-        if message.get("content") is not None
+        if isinstance(message, dict) and message.get("content") is not None
     )
     detection = await _detector.detect(content)
     if detection.detected:
@@ -61,7 +69,7 @@ async def _proxy_request(
         api_headers["Authorization"] = authorization
 
     endpoint = f"{config.azure_openai_endpoint}/openai/deployments/{config.azure_openai_deployment}/chat/completions?api-version=2023-05-15"
-    async with httpx.AsyncClient(timeout=60) as client:
+    async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(endpoint, headers=api_headers, json=payload)
         if response.status_code >= 400:
             detail = response.text
@@ -75,7 +83,7 @@ async def chat_completions(
     config: FirewallConfig = Depends(get_config),
     authorization: str | None = Header(default=None),
 ) -> JSONResponse:
-    client_ip = request.client.host if request.client else "anonymous"
+    client_ip = request.client.host if request.client and request.client.host else "anonymous"
     await _rate_limiter.acquire(client_ip)
     result = await _proxy_request(request, config, authorization)
     return JSONResponse(content=result)

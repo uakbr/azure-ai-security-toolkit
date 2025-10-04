@@ -41,7 +41,7 @@ class PromptInjectionChallenge(AISecurityChallenge):
         if result["solved"]:
             result["feedback"] = "Always monitor for system prompt leakage."
         else:
-            result["feedback"] = "Consider chaining instructions."  # type: ignore[index]
+            result["feedback"] = "Consider chaining instructions."
         return result
 
 

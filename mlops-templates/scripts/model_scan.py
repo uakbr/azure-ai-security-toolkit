@@ -7,15 +7,21 @@ from pathlib import Path
 
 
 def assess_bias(model_path: Path) -> dict[str, float]:
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model not found: {model_path}")
     # Placeholder scoring logic; integrate with Fairlearn/MLFlow in production
     return {"demographic_parity": 0.92, "equalized_odds": 0.88}
 
 
 def assess_robustness(model_path: Path) -> dict[str, float]:
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model not found: {model_path}")
     return {"fgsm_resilience": 0.75, "pgd_resilience": 0.68}
 
 
 def check_vulnerabilities(model_path: Path) -> dict[str, bool]:
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model not found: {model_path}")
     return {"signed_model": True, "dependency_scan_clean": True}
 
 

@@ -12,8 +12,10 @@ class RateLimiter:
     """Very small in-memory token bucket suitable for demo usage."""
 
     def __init__(self, max_per_minute: int) -> None:
+        if max_per_minute <= 0:
+            raise ValueError("max_per_minute must be greater than 0")
         self.max_per_minute = max_per_minute
-        self._tokens: Dict[str, int] = {}
+        self._tokens: Dict[str, float] = {}
         self._timestamps: Dict[str, float] = {}
         self._lock = asyncio.Lock()
 
@@ -36,10 +38,6 @@ class RateLimiter:
 
 
 async def log_request(request: Request, metadata: dict[str, str]) -> None:
-    try:
-        body = await request.json()
-        print("[AI-FIREWALL]", request.method, request.url.path, metadata)
-        print("Body preview:", str(body)[:200])
-    except Exception:
-        # If request body is not JSON or already consumed, skip logging
-        print("[AI-FIREWALL]", request.method, request.url.path, metadata)
+    # Don't try to read request body as it may already be consumed
+    # Just log basic request info
+    print("[AI-FIREWALL]", request.method, request.url.path, metadata)

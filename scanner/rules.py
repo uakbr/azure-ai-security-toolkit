@@ -116,12 +116,16 @@ def _evaluate_condition(resource: Resource, condition: Dict[str, Any]) -> bool:
             break
 
     if operator == "equals":
+        if current is None and expected is None:
+            return True
         if current is None or expected is None:
-            return current is expected
+            return False
         return str(current).lower() == str(expected).lower()
     if operator == "not_equals":
+        if current is None and expected is None:
+            return False
         if current is None or expected is None:
-            return current is not expected
+            return True
         return str(current).lower() != str(expected).lower()
     if operator == "in":
         if current is None or expected is None:
@@ -137,6 +141,11 @@ def _evaluate_condition(resource: Resource, condition: Dict[str, Any]) -> bool:
 
 def from_yaml_rule(payload: Dict[str, Any]) -> Rule:
     """Create a rule from YAML payload with declarative conditions."""
+    
+    required_fields = ["rule_id", "title"]
+    for field in required_fields:
+        if field not in payload:
+            raise ValueError(f"YAML rule missing required field: {field}")
 
     condition = payload.get("condition") or {}
     message = payload.get("message", "Condition matched.")
