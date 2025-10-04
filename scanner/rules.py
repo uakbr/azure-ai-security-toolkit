@@ -141,6 +141,11 @@ def _evaluate_condition(resource: Resource, condition: Dict[str, Any]) -> bool:
 
 def from_yaml_rule(payload: Dict[str, Any]) -> Rule:
     """Create a rule from YAML payload with declarative conditions."""
+    
+    required_fields = ["rule_id", "title"]
+    for field in required_fields:
+        if field not in payload:
+            raise ValueError(f"YAML rule missing required field: {field}")
 
     condition = payload.get("condition") or {}
     message = payload.get("message", "Condition matched.")

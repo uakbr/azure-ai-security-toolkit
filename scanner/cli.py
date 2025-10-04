@@ -62,6 +62,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    if args.concurrency <= 0:
+        parser.error("--concurrency must be greater than 0")
+
     config = ScannerConfig(
         subscription_id=args.subscription_id,
         output_dir=Path(args.output_dir),
